@@ -55,7 +55,7 @@ void any_key() {
     getch();
 }
 
-void listar_produto(ELEM *aux){
+void list_product(ELEM *aux){
     printf("\nCodigo: %i\n", aux->produto.codigo);
     printf("Nome: %s\n", aux->produto.nome);
     printf("Categoria: %s\n", aux->produto.categoria);
@@ -65,7 +65,7 @@ void listar_produto(ELEM *aux){
     printf("Preco de venda: %.2f\n", aux->produto.preco_venda);
 }
 
-void listar_cliente(ELEM *aux){
+void list_client(ELEM *aux){
     printf("\nCodigo: %i\n", aux->cliente.codigo);
     printf("Nome: %s\n", aux->cliente.nome);
     printf("Morada: %s\n", aux->cliente.morada);
@@ -74,7 +74,7 @@ void listar_cliente(ELEM *aux){
     printf("Email: %s\n", aux->cliente.email);
 }
 
-void listar_venda(ELEM *nova_venda, float valor_venda){
+void list_sale(ELEM *nova_venda){
     printf("INFORMACAO DA VENDA:\n");
     printf("\n// Cliente //\n");
     printf("Codigo: %i\n", nova_venda->venda.cliente.codigo);
@@ -89,13 +89,12 @@ void listar_venda(ELEM *nova_venda, float valor_venda){
     printf("Categoria: %s\n", nova_venda->venda.produto.categoria);
     printf("\nQuantidade da venda: %i\n", nova_venda->venda.quantidade);
     printf("Data da venda: %i/%i/%i\n", nova_venda->venda.dia, nova_venda->venda.mes, nova_venda->venda.ano);
-    printf("Valor da venda: %.2f\n", valor_venda);
 }
 
 
 //GERIR PRODUTOS
 
-void listar_produto_codigo(ELEM *iniLista){
+void list_product_code(ELEM *iniLista){
     ELEM *aux = NULL;
     int pesquisa;
 
@@ -111,12 +110,12 @@ void listar_produto_codigo(ELEM *iniLista){
     printf("Produto com codigo %i:\n", pesquisa);
     for(aux = iniLista; aux != NULL; aux = aux->seguinte){
         if(aux->produto.codigo == pesquisa) {
-            listar_produto(aux);
+            list_product(aux);
         }
     }
 }
 
-void listar_produto_alfabetica(ELEM *iniLista){
+void list_product_order(ELEM *iniLista){
     ELEM *aux1 = NULL;
     ELEM *aux2 = NULL;
     ELEM *min = NULL;
@@ -140,11 +139,11 @@ void listar_produto_alfabetica(ELEM *iniLista){
 
     printf("Produtos com o nome organizado por ordem alfabetica:\n");
     for(aux1 = iniLista; aux1 != NULL; aux1 = aux1->seguinte){
-        listar_produto(aux1);
+        list_product(aux1);
     }
 }
 
-void listar_produto_categoria(ELEM *iniLista){
+void list_product_category(ELEM *iniLista){
     ELEM *aux = NULL;
     char pesquisa[50];
 
@@ -161,12 +160,12 @@ void listar_produto_categoria(ELEM *iniLista){
     printf("Produtos com categoria %s\n", pesquisa);
     for(aux = iniLista; aux != NULL; aux = aux->seguinte){
         if(strcmp(aux->produto.categoria, pesquisa) == 0) {
-            listar_produto(aux);
+            list_product(aux);
         }
     }
 }
 
-void listar_produto_validade(ELEM *iniLista){
+void list_product_expiration(ELEM *iniLista){
     ELEM *aux = NULL;
 
     time_t data_atual;
@@ -183,17 +182,17 @@ void listar_produto_validade(ELEM *iniLista){
     printf("Produtos fora de validade:\n");
     for(aux = iniLista; aux != NULL; aux = aux->seguinte){
         if(aux->produto.ano < tm.tm_year + 1900){
-            listar_produto(aux);
+            list_product(aux);
         } else if(aux->produto.ano == tm.tm_year + 1900 && aux->produto.mes < tm.tm_mon + 1){
-            listar_produto(aux);
+            list_product(aux);
         } else if(aux->produto.ano == tm.tm_year + 1900 && aux->produto.mes == tm.tm_mon + 1 &&
         aux->produto.dia < tm.tm_mday){
-            listar_produto(aux);
+            list_product(aux);
         }
     }
 }
 
-void adicionar_produto(ELEM **iniLista, ELEM **fimLista){
+void add_product(ELEM **iniLista, ELEM **fimLista){
     ELEM *novo = NULL;
     novo=(ELEM *)calloc(1, sizeof(ELEM));
 
@@ -259,7 +258,7 @@ void adicionar_produto(ELEM **iniLista, ELEM **fimLista){
     }
 }
 
-void atualizar_produto(ELEM *iniLista){
+void update_product(ELEM *iniLista){
     ELEM *aux=NULL;
     int pesquisa;
 
@@ -304,7 +303,7 @@ void atualizar_produto(ELEM *iniLista){
     }
 }
 
-void remover_produto(ELEM **iniLista, ELEM **fimLista){
+void remove_product(ELEM **iniLista, ELEM **fimLista){
     ELEM *aux = NULL;
     aux = *iniLista;
     int pesquisa;
@@ -346,7 +345,7 @@ void remover_produto(ELEM **iniLista, ELEM **fimLista){
     free(aux);
 }
 
-void calcular_valor(ELEM *iniLista){
+void calculate_value(ELEM *iniLista){
     ELEM *aux = NULL;
     float total_produto;
     float total;
@@ -364,7 +363,7 @@ void calcular_valor(ELEM *iniLista){
     printf("\nValor total do stock: %.2f", total);
 }
 
-void criar_relatorio_produto(){
+void create_product_report(){
     FILE *fp = NULL;
     char relatorio[200];
 
@@ -386,13 +385,13 @@ void criar_relatorio_produto(){
     fwrite(relatorio, sizeof(char), strlen(relatorio),fp);
 
     fclose(fp);
-    printf("Relatorio guardado no ficheiro");
+    printf("Relatorio guardado no ficheiro!");
 }
 
 
 //GERIR CLIENTES
 
-void listar_cliente_alfabetica(ELEM *iniLista){
+void list_client_order(ELEM *iniLista){
     ELEM *aux1 = NULL;
     ELEM *aux2 = NULL;
     ELEM *min = NULL;
@@ -416,11 +415,11 @@ void listar_cliente_alfabetica(ELEM *iniLista){
 
     printf("Cliente com o nome organizado por ordem alfabetica:\n");
     for(aux1 = iniLista; aux1 != NULL; aux1 = aux1->seguinte){
-        listar_cliente(aux1);
+        list_client(aux1);
     }
 }
 
-void listar_cliente_nif(ELEM *iniLista){
+void list_client_nif(ELEM *iniLista){
     ELEM *aux = NULL;
     int pesquisa;
 
@@ -437,13 +436,13 @@ void listar_cliente_nif(ELEM *iniLista){
     printf("Cliente com NIF %i:\n", pesquisa);
     for(aux = iniLista; aux != NULL; aux = aux->seguinte){
         if(aux->cliente.nif == pesquisa) {
-            listar_cliente(aux);
+            list_client(aux);
         }
     }
 }
 
 int codigo_atual = 1;
-void adicionar_cliente(ELEM **iniLista, ELEM **fimLista){
+void add_client(ELEM **iniLista, ELEM **fimLista){
     ELEM *novo_cliente = NULL;
     novo_cliente=(ELEM *)calloc(1, sizeof(ELEM));
 
@@ -499,7 +498,7 @@ void adicionar_cliente(ELEM **iniLista, ELEM **fimLista){
     }
 }
 
-void atualizar_cliente(ELEM *iniLista){
+void update_client(ELEM *iniLista){
     ELEM *aux=NULL;
     int pesquisa;
 
@@ -513,7 +512,7 @@ void atualizar_cliente(ELEM *iniLista){
         return;
     }
 
-    for(aux=iniLista; aux!=NULL; aux=aux->seguinte){
+    for(aux = iniLista; aux != NULL; aux = aux->seguinte){
         if(aux->cliente.nif == pesquisa){
             printf("Morada:\n");
             scanf("%s", aux->cliente.morada);
@@ -530,14 +529,13 @@ void atualizar_cliente(ELEM *iniLista){
 
 //GERIR VENDAS
 
-void registar_venda(ELEM **iniLista, ELEM **fimLista){
+void register_sale(ELEM **iniLista, ELEM **fimLista){
     ELEM *aux = NULL;
     ELEM *nova_venda = NULL;
     nova_venda=(ELEM *)calloc(1, sizeof(ELEM));
     int pesquisa_cliente;
     int pesquisa_produtos;
     int quantidade_vendida;
-    float valor_venda;
     time_t data_atual;
     data_atual = time(NULL);
     struct tm tm = *localtime(&data_atual);
@@ -596,7 +594,6 @@ void registar_venda(ELEM **iniLista, ELEM **fimLista){
 
             nova_venda->venda.produto.preco_compra = aux->produto.preco_compra;
             nova_venda->venda.produto.preco_venda = aux->produto.preco_venda;
-            valor_venda = (float)quantidade_vendida * nova_venda->venda.produto.preco_venda;
 
             nova_venda->venda.dia = tm.tm_mday;
             nova_venda->venda.mes = tm.tm_mon + 1;
@@ -617,12 +614,99 @@ void registar_venda(ELEM **iniLista, ELEM **fimLista){
     }
 
     clear_menu();
-    listar_venda(nova_venda, valor_venda);
+    list_sale(nova_venda);
     any_key();
 }
 
-void criar_relatorio_venda(){
+void create_sale_report(ELEM *iniLista){
+    ELEM *aux = NULL;
+    FILE *fp = NULL;
+    char extra[200];
+    char tipo[10];
+    float valor_venda;
 
+    clear_menu();
+
+    printf("Tipo de relatorio (diario/mensal/anual):\n");
+    scanf("%s", tipo);
+
+    printf("Tem mais alguma coisa a adicionar?\n");
+    fflush(stdin);
+    fgets(extra, sizeof(extra), stdin);
+    extra[strcspn(extra, "\n")] = '\0';
+
+    for(aux = iniLista; aux != NULL; aux = aux->seguinte) {
+        valor_venda = (float) aux->venda.quantidade * aux->venda.produto.preco_venda;
+    }
+
+    fp = fopen("relatorio_venda.txt","w");
+    if (fp == NULL){
+        printf("Erro ao abrir o ficheiro!\n");
+        return;
+    }
+
+    fprintf(fp, "%i %s %s %i %i %i %i %.2f %.2f %i %.2f %s %s",
+            aux->venda.produto.codigo, aux->venda.produto.nome,
+            aux->venda.produto.categoria, aux->venda.produto.dia,
+            aux->venda.produto.mes, aux->venda.produto.ano,
+            aux->venda.produto.quantidade, aux->venda.produto.preco_compra,
+            aux->venda.produto.preco_venda, aux->venda.quantidade,
+            valor_venda, extra, tipo);
+
+    fclose(fp);
+    printf("Relatorio guardado no ficheiro!");
+}
+
+void list_menu(ELEM *iniLista){
+    int opcao;
+
+    clear_menu();
+
+    do{
+        printf("1 - Listar informacao de um produto\n");
+        printf("2 - Listar todos os produtos por ordem alfabetica\n");
+        printf("3 - Listar produtos por categoria\n");
+        printf("4 - Listar produtos fora de validade\n");
+        printf("5 - Listar clientes por ordem alfabetica\n");
+        printf("6 - Listar informacao de um cliente\n");
+        printf("0 - Voltar\n");
+
+        printf("Selecione uma opcao:\n");
+        scanf("%i", &opcao);
+
+        switch (opcao){
+            case 1:
+                list_product_code(iniLista);
+                any_key();
+                break;
+
+            case 2:
+                list_product_order(iniLista);
+                any_key();
+                break;
+
+            case 3:
+                list_product_category(iniLista);
+                any_key();
+                break;
+
+            case 4:
+                list_product_expiration(iniLista);
+                any_key();
+                break;
+
+            case 5:
+                list_client_order(iniLista);
+                any_key();
+                break;
+
+            case 6:
+                list_client_nif(iniLista);
+                any_key();
+                break;
+        }
+
+    } while (opcao != 0);
 }
 
 int main() {
@@ -634,21 +718,17 @@ int main() {
 
     do{
         printf("Gestao do armazem\n");
-        printf("1 - Adicionar produto (...)\n");
+        printf("1 - Adicionar produto\n");
         printf("2 - Atualizar informacao de um produto\n");
         printf("3 - Remover produto\n");
-        printf("4 - Listar informacao de um produto\n");
-        printf("5 - Listar todos os produtos por ordem alfabetica\n");
-        printf("6 - Listar produtos por categoria\n");
-        printf("7 - Listar produtos fora de validade\n");
-        printf("8 - Calcular valor do stock atual\n");
-        printf("9 - Criar relatorio de produto fora de validade (...)\n");
-        printf("10 - Adicionar cliente\n");
-        printf("11 - Atualizar informacao de um cliente\n");
-        printf("12 - Listar clientes por ordem alfabetica\n");
-        printf("13 - Listar informacao de um cliente\n");
-        printf("14 - Registar venda\n");
-        printf("15 - Criar relatorio de vendas\n");
+        printf("4 - Calcular valor do stock atual\n");
+        printf("5 - Criar relatorio de produto fora de validade (...)\n");
+        printf("6 - Adicionar cliente\n");
+        printf("7 - Atualizar informacao de um cliente\n");
+        printf("8 - Registar venda\n");
+        printf("9 - Criar relatorio de vendas\n");
+        printf("10 - Listar informacao\n");
+        printf("0 - Terminar\n");
 
         printf("Selecione uma opcao:\n");
         scanf("%i", &opcao);
@@ -656,67 +736,45 @@ int main() {
 
         switch (opcao) {
             case 1:
-                adicionar_produto(&iniLista, &fimLista);
+                add_product(&iniLista, &fimLista);
                 break;
 
             case 2:
-                atualizar_produto(iniLista);
+                update_product(iniLista);
                 break;
 
             case 3:
-                remover_produto(&iniLista, &fimLista);
+                remove_product(&iniLista, &fimLista);
                 break;
 
             case 4:
-                listar_produto_codigo(iniLista);
+                calculate_value(iniLista);
                 any_key();
                 break;
 
             case 5:
-                listar_produto_alfabetica(iniLista);
+                create_product_report();
                 any_key();
                 break;
 
             case 6:
-                listar_produto_categoria(iniLista);
-                any_key();
+                add_client(&iniLista, &fimLista);
                 break;
 
             case 7:
-                listar_produto_validade(iniLista);
-                any_key();
+                update_client(iniLista);
                 break;
 
             case 8:
-                calcular_valor(iniLista);
-                any_key();
+                register_sale(&iniLista, &fimLista);
                 break;
 
             case 9:
-                criar_relatorio_produto();
-                any_key();
+                create_sale_report(iniLista);
                 break;
 
             case 10:
-                adicionar_cliente(&iniLista, &fimLista);
-                break;
-
-            case 11:
-                atualizar_cliente(iniLista);
-                break;
-
-            case 12:
-                listar_cliente_alfabetica(iniLista);
-                any_key();
-                break;
-
-            case 13:
-                listar_cliente_nif(iniLista);
-                any_key();
-                break;
-
-            case 14:
-                registar_venda(&iniLista, &fimLista);
+                list_menu(iniLista);
                 break;
         }
     } while (opcao != 0);
