@@ -657,6 +657,37 @@ void create_sale_report(ELEM *iniLista){
     printf("Relatorio guardado no ficheiro!");
 }
 
+void manage_menu(ELEM *iniLista, ELEM *fimLista){
+    int opcao;
+
+    clear_menu();
+
+    do{
+        printf("1 - Atualizar informacao de um produto\n");
+        printf("2 - Remover produto\n");
+        printf("3 - Atualizar informacao de um cliente\n");
+        printf("0 - Voltar\n");
+
+        printf("Selecione uma opcao:\n");
+        scanf("%i", &opcao);
+
+        switch (opcao){
+            case 1:
+                update_product(iniLista);
+                break;
+
+            case 2:
+                remove_product(&iniLista, &fimLista);
+                break;
+
+            case 3:
+                update_client(iniLista);
+                break;
+        }
+
+    } while (opcao != 0);
+}
+
 void list_menu(ELEM *iniLista){
     int opcao;
 
@@ -719,15 +750,13 @@ int main() {
     do{
         printf("Gestao do armazem\n");
         printf("1 - Adicionar produto\n");
-        printf("2 - Atualizar informacao de um produto\n");
-        printf("3 - Remover produto\n");
-        printf("4 - Calcular valor do stock atual\n");
-        printf("5 - Criar relatorio de produto fora de validade (...)\n");
-        printf("6 - Adicionar cliente\n");
-        printf("7 - Atualizar informacao de um cliente\n");
-        printf("8 - Registar venda\n");
-        printf("9 - Criar relatorio de vendas\n");
-        printf("10 - Listar informacao\n");
+        printf("2 - Calcular valor do stock atual\n");
+        printf("3 - Criar relatorio de produto fora de validade (...)\n");
+        printf("4 - Adicionar cliente\n");
+        printf("5 - Registar venda\n");
+        printf("6 - Criar relatorio de vendas\n");
+        printf("7 - Gerir produtos/clientes\n");
+        printf("8 - Listar informacao\n");
         printf("0 - Terminar\n");
 
         printf("Selecione uma opcao:\n");
@@ -740,40 +769,28 @@ int main() {
                 break;
 
             case 2:
-                update_product(iniLista);
+                calculate_value(iniLista);
                 break;
 
             case 3:
-                remove_product(&iniLista, &fimLista);
+                create_product_report();
                 break;
 
             case 4:
-                calculate_value(iniLista);
-                any_key();
-                break;
+                add_client(&iniLista, &fimLista);
 
             case 5:
-                create_product_report();
-                any_key();
-                break;
+                register_sale(&iniLista, &fimLista);
 
             case 6:
-                add_client(&iniLista, &fimLista);
-                break;
-
-            case 7:
-                update_client(iniLista);
-                break;
-
-            case 8:
-                register_sale(&iniLista, &fimLista);
-                break;
-
-            case 9:
                 create_sale_report(iniLista);
                 break;
 
-            case 10:
+            case 7:
+                manage_menu(iniLista, fimLista);
+                break;
+
+            case 8:
                 list_menu(iniLista);
                 break;
         }
