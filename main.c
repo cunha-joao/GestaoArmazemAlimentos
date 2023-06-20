@@ -91,11 +91,81 @@ void list_sale(ELEM *nova_venda){
     printf("Data da venda: %i/%i/%i\n", nova_venda->venda.dia, nova_venda->venda.mes, nova_venda->venda.ano);
 }
 
+void read_product(ELEM **iniLista, ELEM **fimLista){
+    FILE *fp;
+    fp = fopen("produtos.dat", "rb");
+
+    if (fp == NULL) {
+        printf("Erro ao abrir o ficheiro!\n");
+        return;
+    }
+
+    PRODUTO produto;
+    while (fread(&produto, sizeof(PRODUTO), 1, fp) == 1) {
+        ELEM *novo = (ELEM *)malloc(sizeof(ELEM));
+
+        if (novo == NULL) {
+            printf("Sem memoria!\n");
+            fclose(fp);
+            return;
+        }
+
+        novo->produto = produto;
+        novo->seguinte = NULL;
+        novo->anterior = NULL;
+
+        if (*fimLista == NULL) {
+            *iniLista = novo;
+            *fimLista = novo;
+        } else {
+            (*fimLista)->seguinte = novo;
+            novo->anterior = *fimLista;
+            *fimLista = novo;
+        }
+    }
+
+    fclose(fp);
+}
+
+void read_client(ELEM **iniLista, ELEM **fimLista){
+    FILE *fp;
+    fp = fopen("clientes.dat", "rb");
+
+    if (fp == NULL) {
+        printf("Erro ao abrir o ficheiro!\n");
+        return;
+    }
+
+    CLIENTE cliente;
+    while (fread(&cliente, sizeof(PRODUTO), 1, fp) == 1) {
+        ELEM *novo = (ELEM *)malloc(sizeof(ELEM));
+
+        if (novo == NULL) {
+            printf("Sem memoria!\n");
+            fclose(fp);
+            return;
+        }
+
+        novo->cliente = cliente;
+        novo->seguinte = NULL;
+        novo->anterior = NULL;
+
+        if (*fimLista == NULL) {
+            *iniLista = novo;
+            *fimLista = novo;
+        } else {
+            novo->anterior = *fimLista;
+            (*fimLista)->seguinte = novo;
+            *fimLista = novo;
+        }
+    }
+    fclose(fp);
+}
+
 
 //GERIR PRODUTOS
 
 void list_product_code(ELEM *iniLista){
-    ELEM *aux = NULL;
     int pesquisa;
 
     clear_menu();
@@ -107,18 +177,28 @@ void list_product_code(ELEM *iniLista){
         printf("Lista vazia!\n");
         return;
     }
+
+    FILE *fp = NULL;
+    fp = fopen("produtos.dat", "rb");
+
+    if(fp == NULL){
+        printf("Erro ao abrir o ficheiro!\n");
+        return;
+    }
+
     printf("Produto com codigo %i:\n", pesquisa);
-    for(aux = iniLista; aux != NULL; aux = aux->seguinte){
-        if(aux->produto.codigo == pesquisa) {
-            list_product(aux);
+    ELEM aux;
+    while (fread(&aux.produto, sizeof(PRODUTO), 1, fp) == 1){
+        if(aux.produto.codigo == pesquisa){
+            list_product(&aux);
+            break;
         }
     }
+    fclose(fp);
 }
 
 void list_product_order(ELEM *iniLista){
-    ELEM *aux1 = NULL;
-    ELEM *aux2 = NULL;
-    ELEM *min = NULL;
+    ELEM *sortedList = NULL;
 
     clear_menu();
 
@@ -127,8 +207,34 @@ void list_product_order(ELEM *iniLista){
         return;
     }
 
-    //Algoritmo selection sort
-    for (aux1 = iniLista; aux1->seguinte != NULL; aux1 = aux1->seguinte) {
+    ELEM *current = iniLista;
+    while(current != NULL){
+        ELEM *novo = (ELEM*) calloc(1, sizeof(ELEM));
+        if(novo == NULL){
+            printf("Sem memoria!\n");
+            return;
+        }
+        novo->produto = current->produto;
+        novo->seguinte = NULL;
+        novo->anterior = NULL;
+
+        if (sortedList == NULL) {
+            sortedList = novo;
+        } else {
+            ELEM *last = sortedList;
+            while (last->seguinte != NULL) {
+                last = last->seguinte;
+            }
+            last->seguinte = novo;
+            novo->anterior = last;
+        }
+
+        current = current->seguinte;
+    }
+
+    // Perform insertion sort to order products by name
+    ELEM *aux1, *aux2, *min;
+    for (aux1 = sortedList; aux1 != NULL; aux1 = aux1->seguinte) {
         min = aux1;
         for (aux2 = aux1->seguinte; aux2 != NULL; aux2 = aux2->seguinte) {
             if (strcmp(aux2->produto.nome, min->produto.nome) < 0) {
@@ -138,8 +244,18 @@ void list_product_order(ELEM *iniLista){
     }
 
     printf("Produtos com o nome organizado por ordem alfabetica:\n");
-    for(aux1 = iniLista; aux1 != NULL; aux1 = aux1->seguinte){
-        list_product(aux1);
+    for (ELEM *aux = sortedList; aux != NULL; aux = aux->seguinte) {
+        if(strlen(aux->produto.nome) == 0){
+            continue;
+        }
+        list_product(aux);
+    }
+
+    // Free memory allocated for the temporary list
+    while (sortedList != NULL) {
+        ELEM *temp = sortedList;
+        sortedList = sortedList->seguinte;
+        free(temp);
     }
 }
 
@@ -182,11 +298,20 @@ void list_product_expiration(ELEM *iniLista){
     printf("Produtos fora de validade:\n");
     for(aux = iniLista; aux != NULL; aux = aux->seguinte){
         if(aux->produto.ano < tm.tm_year + 1900){
+            if(strlen(aux->produto.nome) == 0){
+                continue;
+            }
             list_product(aux);
         } else if(aux->produto.ano == tm.tm_year + 1900 && aux->produto.mes < tm.tm_mon + 1){
+            if(strlen(aux->produto.nome) == 0){
+                continue;
+            }
             list_product(aux);
         } else if(aux->produto.ano == tm.tm_year + 1900 && aux->produto.mes == tm.tm_mon + 1 &&
         aux->produto.dia < tm.tm_mday){
+            if(strlen(aux->produto.nome) == 0){
+                continue;
+            }
             list_product(aux);
         }
     }
@@ -194,7 +319,7 @@ void list_product_expiration(ELEM *iniLista){
 
 void add_product(ELEM **iniLista, ELEM **fimLista){
     ELEM *novo = NULL;
-    novo=(ELEM *)calloc(1, sizeof(ELEM));
+    novo = (ELEM *)calloc(1, sizeof(ELEM));
 
     clear_menu();
 
@@ -256,6 +381,20 @@ void add_product(ELEM **iniLista, ELEM **fimLista){
         (*fimLista)->seguinte = novo;
         *fimLista = novo;
     }
+
+    //Store in the file
+    FILE *fp = NULL;
+
+    fp = fopen("produtos.dat", "ab");
+
+    if(fp == NULL){
+        printf("Erro ao abrir o ficheiro!\n");
+        return;
+    }
+
+    fwrite(&novo->produto, sizeof(PRODUTO), 1, fp);
+
+    fclose(fp);
 }
 
 void update_product(ELEM *iniLista){
@@ -271,6 +410,7 @@ void update_product(ELEM *iniLista){
         printf("Lista vazia\n");
         return;
     }
+
     for(aux=iniLista; aux!=NULL; aux=aux->seguinte){
         if(aux->produto.codigo == pesquisa){
             printf("Codigo:\n");
@@ -342,6 +482,35 @@ void remove_product(ELEM **iniLista, ELEM **fimLista){
             aux->seguinte->anterior=aux->anterior;
         }
     }
+
+    FILE* fp = fopen("produtos.dat", "rb");
+    FILE* tempFp = fopen("temp.dat", "wb");
+
+    if (fp == NULL || tempFp == NULL) {
+        printf("Error opening file\n");
+        return;
+    }
+
+    PRODUTO product;
+    while (fread(&product, sizeof(PRODUTO), 1, fp)) {
+        if (product.codigo != pesquisa) {
+            fwrite(&product, sizeof(PRODUTO), 1, tempFp);
+        }
+    }
+
+    fclose(fp);
+    fclose(tempFp);
+
+    // Rename the temporary file to replace the original file
+    if (remove("produtos.dat") == 0) {
+        if (rename("temp.dat", "produtos.dat") != 0) {
+            printf("Error renaming file\n");
+            return;
+        }
+    } else {
+        printf("Error deleting file\n");
+        return;
+    }
     free(aux);
 }
 
@@ -350,6 +519,8 @@ void calculate_value(ELEM *iniLista){
     float total_produto;
     float total;
 
+    clear_menu();
+
     if(iniLista == NULL){
         printf("Lista vazia!\n");
         return;
@@ -357,10 +528,13 @@ void calculate_value(ELEM *iniLista){
 
     for(aux = iniLista; aux != NULL; aux = aux->seguinte){
         total_produto = (float)aux->produto.quantidade * aux->produto.preco_compra;
+        if(strlen(aux->produto.nome) == 0){
+            continue;
+        }
         printf("Valor do produto com codigo %i: %.2f\n", aux->produto.codigo, total_produto);
         total = total + total_produto;
     }
-    printf("\nValor total do stock: %.2f", total);
+    printf("\nValor total do stock: %.2f\n", total);
 }
 
 void create_product_report(){
@@ -415,12 +589,14 @@ void list_client_order(ELEM *iniLista){
 
     printf("Cliente com o nome organizado por ordem alfabetica:\n");
     for(aux1 = iniLista; aux1 != NULL; aux1 = aux1->seguinte){
+        if(strlen(aux1->cliente.nome) == 0){
+            continue;
+        }
         list_client(aux1);
     }
 }
 
 void list_client_nif(ELEM *iniLista){
-    ELEM *aux = NULL;
     int pesquisa;
 
     clear_menu();
@@ -433,12 +609,25 @@ void list_client_nif(ELEM *iniLista){
         return;
     }
 
-    printf("Cliente com NIF %i:\n", pesquisa);
-    for(aux = iniLista; aux != NULL; aux = aux->seguinte){
-        if(aux->cliente.nif == pesquisa) {
-            list_client(aux);
+    FILE *fp = NULL;
+    fp = fopen("clientes.dat", "rb");
+
+    if(fp == NULL){
+        printf("Erro ao abrir o ficheiro!\n");
+        return;
+    }
+
+    ELEM aux;
+    while (fread(&aux.cliente, sizeof(PRODUTO), 1, fp) == 1){
+        if(aux.cliente.nif == pesquisa){
+            if(strlen(aux.cliente.nome) == 0){
+                continue;
+            }
+            list_client(&aux);
+            break;
         }
     }
+    fclose(fp);
 }
 
 int codigo_atual = 1;
@@ -496,6 +685,20 @@ void add_client(ELEM **iniLista, ELEM **fimLista){
         (*fimLista)->seguinte = novo_cliente;
         *fimLista = novo_cliente;
     }
+
+    //Store in the file
+    FILE *fp = NULL;
+
+    fp = fopen("clientes.dat", "ab");
+
+    if(fp == NULL){
+        printf("Erro ao abrir o ficheiro!\n");
+        return;
+    }
+
+    fwrite(&novo_cliente->cliente, sizeof(PRODUTO), 1, fp);
+
+    fclose(fp);
 }
 
 void update_client(ELEM *iniLista){
@@ -745,6 +948,10 @@ int main() {
     ELEM *iniLista = NULL;
     ELEM *fimLista = NULL;
 
+    //Read the files to get the information from previous sessions
+    read_product(&iniLista, &fimLista);
+    read_client(&iniLista, &fimLista);
+
     clear_menu();
 
     do{
@@ -754,7 +961,7 @@ int main() {
         printf("3 - Criar relatorio de produto fora de validade (...)\n");
         printf("4 - Adicionar cliente\n");
         printf("5 - Registar venda\n");
-        printf("6 - Criar relatorio de vendas\n");
+        printf("6 - Criar relatorio de vendas (...)\n");
         printf("7 - Gerir produtos/clientes\n");
         printf("8 - Listar informacao\n");
         printf("0 - Terminar\n");
@@ -770,20 +977,26 @@ int main() {
 
             case 2:
                 calculate_value(iniLista);
+                any_key();
                 break;
 
             case 3:
                 create_product_report();
+                any_key();
                 break;
 
             case 4:
                 add_client(&iniLista, &fimLista);
+                break;
 
             case 5:
                 register_sale(&iniLista, &fimLista);
+                any_key();
+                break;
 
             case 6:
                 create_sale_report(iniLista);
+                any_key();
                 break;
 
             case 7:
